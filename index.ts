@@ -1,0 +1,143 @@
+import { ethers } from "ethers";
+import contractABI from "./abi.json";
+
+// 假设你的ABI文件内容如下，替换为你的实际ABI
+// 通常这是一个数组，包含了合约的所有函数、事件、错误等定义
+// const contractABI = [
+//     // 示例 ABI，请替换为你的实际 ABI！
+//     // 假设有一个函数叫做 'someFunction' 接受一些参数
+//     {
+//         "inputs": [
+//             {
+//                 "internalType": "uint256",
+//                 "name": "_arg1",
+//                 "type": "uint256"
+//             },
+//             {
+//                 "internalType": "address",
+//                 "name": "_arg2",
+//                 "type": "address"
+//             },
+//             {
+//                 "internalType": "bytes",
+//                 "name": "_arg3",
+//                 "type": "bytes"
+//             }
+//         ],
+//         "name": "someFunction",
+//         "outputs": [],
+//         "stateMutability": "nonpayable",
+//         "type": "function"
+//     },
+//     // 如果你的合约有其他函数，也请添加到这里
+//     // ...
+//     {
+//         "inputs": [
+//             {
+//                 "internalType": "uint256",
+//                 "name": "_valA",
+//                 "type": "uint256"
+//             },
+//             {
+//                 "internalType": "uint256",
+//                 "name": "_valB",
+//                 "type": "uint256"
+//             }
+//         ],
+//         "name": "anotherFunction",
+//         "outputs": [
+//             {
+//                 "internalType": "uint256",
+//                 "name": "",
+//                 "type": "uint256"
+//             }
+//         ],
+//         "stateMutability": "view",
+//         "type": "function"
+//     }
+// ];
+
+// const txData = "0xac9650d8000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000030000000000000000000000000000000000000000000000000000000000000060000000000000000000000000000000000000000000000000000000000000018000000000000000000000000000000000000000000000000000000000000002c000000000000000000000000000000000000000000000000000000000000000e4472b43f3000000000000000000000000000000000000000000007314a1b96bb7f3af10000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000002000000000000000000000000111499d468c4ee2e5bd6255aab7da8208e0692bb00000000000000000000000055d398326f99059ff775485246999027b3197955000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000104b858183f0000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000008000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000003f3dcbeff2007b000000000000000000000000000000000000000000000000000000000000002b55d398326f99059ff775485246999027b3197955000064bb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004449404b7c000000000000000000000000000000000000000000000000003f3dcbeff2007b000000000000000000000000f7b28bbafd3e56e386ce1a4b1ed1dc1b5d831ce500000000000000000000000000000000000000000000000000000000";
+// const txData = "0xac9650d800000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000004000000000000000000000000000000000000000000000000000000000000001800000000000000000000000000000000000000000000000000000000000000104b858183f00000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000000000000000080000000000000000000000000000000000000000000000000000000000000000200000000000000000000000000000000000000000000000000038d7ea4c680000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000002bbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c00006455d398326f99059ff775485246999027b31979550000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000e4472b43f300000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001968234681e05c610000000000000000000000000000000000000000000000000000000000000080000000000000000000000000ffe3016f87af04a721b53802116475926f92f92e000000000000000000000000000000000000000000000000000000000000000200000000000000000000000055d398326f99059ff775485246999027b3197955000000000000000000000000673a69e57b744267019ea8ff96c1d6323f03333300000000000000000000000000000000000000000000000000000000";
+const txData = "0xac9650d8000000000000000000000000000000000000000000000000000000000000002000000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000000000000000000040000000000000000000000000000000000000000000000000000000000000016000000000000000000000000000000000000000000000000000000000000000e404e45aaf00000000000000000000000095034f653d5d161890836ad2b6b8cc49d14e029a000000000000000000000000bb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c000000000000000000000000000000000000000000000000000000000000006400000000000000000000000000000000000000000000000000000000000000020000000000000000000000000000000000000000000000025734f25af63da00000000000000000000000000000000000000000000000000000023a91a531fb9b000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000004449404b7c00000000000000000000000000000000000000000000000000023a91a531fb9b000000000000000000000000ffe3016f87af04a721b53802116475926f92f92e00000000000000000000000000000000000000000000000000000000";
+
+async function decodeTransactionData(abi: any[], data: string) {
+    const iface = new ethers.Interface(abi);
+
+    try {
+        const parsedTx = iface.parseTransaction({ data: data });
+
+        if (parsedTx) {
+            console.log("--- Decoded Transaction Data ---");
+            console.log("Function Name:", parsedTx.name);
+            console.log("Function Signature:", parsedTx.signature);
+            console.log("Function Fragment:", parsedTx.fragment);
+            console.log("Arguments:");
+
+            parsedTx.args.forEach((arg: any, index: number) => {
+                const paramName = parsedTx.fragment.inputs[index].name;
+                const paramType = parsedTx.fragment.inputs[index].type;
+
+                let displayValue: any = arg;
+
+                if (paramType.startsWith('uint') || paramType.startsWith('int')) {
+                    displayValue = arg.toString();
+                } else if (paramType === 'address') {
+                    displayValue = arg;
+                } else if (paramType === 'bytes') { // For single 'bytes' type
+                    displayValue = ethers.hexlify(arg);
+                    if (displayValue.length > 100) {
+                        displayValue = displayValue.substring(0, 50) + "... (truncated)";
+                    }
+                } else if (paramType === 'bytes[]') { // Corrected logic for 'bytes[]'
+                    if (Array.isArray(arg)) {
+                        displayValue = arg.map((item, i) => {
+                            const itemHex = ethers.hexlify(item);
+                            // Optional: Further decode individual bytes calls within multicall
+                            try {
+                                const internalParsed = iface.parseTransaction({ data: itemHex });
+                                if (internalParsed) {
+                                    return {
+                                        internalFunctionName: internalParsed.name,
+                                        internalFunctionArgs: internalParsed.args.map(a => {
+                                            if (typeof a === 'object' && a._isBigNumber) return a.toString();
+                                            return a;
+                                        }),
+                                        raw: itemHex
+                                    };
+                                }
+                            } catch (e) {
+                                // If internal decoding fails, just return the raw bytes
+                            }
+
+                            // Truncate if too long
+                            return itemHex.length > 100 ? itemHex.substring(0, 50) + "... (truncated)" : itemHex;
+                        });
+                    } else {
+                        displayValue = "Error: Expected array for bytes[] type";
+                    }
+                } else if (Array.isArray(arg)) {
+                    displayValue = arg.map(item => {
+                        if (typeof item === 'object' && item._isBigNumber) {
+                            return item.toString();
+                        }
+                        return item;
+                    });
+                }
+
+
+                console.log(`  - ${paramName} (${paramType}):`, displayValue);
+            });
+        } else {
+            console.log("Could not parse transaction data with the provided ABI.");
+        }
+    } catch (error) {
+        console.error("Error decoding transaction data:", error);
+        console.log("This often happens if the ABI does not match the 'data' field,");
+        console.log("or if the 'data' field is not a function call (e.g., just a value transfer).");
+        console.log("Raw data was:", data);
+    }
+}
+
+// 调用函数进行解码
+decodeTransactionData(contractABI, txData);
